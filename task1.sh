@@ -23,7 +23,6 @@
 
 
 
-
 #!/bin/bash
 
 # Input JSON file
