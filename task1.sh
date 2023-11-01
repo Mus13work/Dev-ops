@@ -4,7 +4,7 @@
 # input_file="input.json"
 
 # # Output CSV file
-# output_file="output.csv"
+# output_file="output2.csv"
 
 # # Create the CSV file with headers
 # echo "ID,Version,Status" > "$output_file"
@@ -25,27 +25,38 @@
 
 #!/bin/bash
 
-# Input JSON file
-input_file="input.json"
+echo ".........Started.........."
 
-# Output CSV file
-output_file="output.csv"
+input_file="input.json"
+output_file="result.csv"
 
 # Create the CSV file with headers
-echo "ID,Version,Status" > "$output_file"
+echo "id,status,version" > "$output_file"
 
-# Extract data from the JSON file using bash
+# Initialize variables
+count=0
+str=""
+
 while IFS= read -r line; do
-  if [[ "$line" == *"code"* ]]; then
-    id=$(echo "$line" | awk -F ': "' '{print $2}' | sed 's/",//')
-  elif [[ "$line" == *"version"* ]]; then
-    version=$(echo "$line" | awk -F ': "' '{print $2}' | sed 's/",//')
-  elif [[ "$line" == *"status"* ]]; then
-    status=$(echo "$line" | awk -F ': "' '{print $2}' | sed 's/",//')
-  elif [[ "$line" == "}," ]]; then
-    # Append the data to the CSV file without double quotes
-    echo "$id,$version,$status" >> "$output_file"
+  if [[ "$line" == *'"code":'* ]]; then
+    ((count++))
+    a=$(echo "$line" | awk -F ': "' '{print $2}' | sed 's/\"//g')
+    str="${a}"
+  elif [[ "$line" == *'"status":'* ]]; then
+    ((count++))
+    b=$(echo "$line" | awk -F ': "' '{print $2}' | sed 's/\"//g')
+    str="${str},${b}"
+  elif [[ "$line" == *'"version":'* ]]; then
+    ((count++))
+    c=$(echo "$line" | awk -F ': "' '{print $2}' | sed 's/\"//g')
+    str="${str},${c}"
+  fi
+
+  if [ $count -ge 3 ]; then
+    echo "$str" >> "$output_file"
+    str=""
+    count=0
   fi
 done < "$input_file"
 
-echo "Data has been extracted and saved to $output_file."
+echo ".......Finished.........."
